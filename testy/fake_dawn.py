@@ -2,13 +2,11 @@ import socket
 import threading
 import queue
 import time
-data = []
+data = [0]
 def sender(port, send_queue):
 	host = '127.0.0.1'
 	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:#DGRAM for UDP sockets
 		s.bind((host, port))
-		s.listen(1)
-		conn, addr = s.accept()
 		while(True):
 			#msg = conn.recv(2048)
 			#recv_queue.putnowait(msg)
@@ -23,8 +21,9 @@ def receiver(port, receive_queue):
 		#msg = send_queue.get_nowait()
 		#conn.sendall(data)
 		data.pop()
-		data.append(conn.recv(2048)+1)
-		conn.sendall(data)
+		msg, addr = s.recvfrom(2048)
+		data.append(msg[0]+1)
+		s.sendto(data)
 
 send_queue = queue.Queue()
 recv_queue = queue.Queue()
